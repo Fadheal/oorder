@@ -1,6 +1,9 @@
 import { Hono } from "hono";
+import menuRoute from "./routes/menu.route";
 
 const app = new Hono();
+
+app.route("/api/menu", menuRoute)
 
 app.get("/", (c) => {
   return c.json({
