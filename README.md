@@ -1,159 +1,357 @@
-# Turborepo starter
+# Oorder
 
-This Turborepo starter is maintained by the Turborepo core team.
+### Self-Ordering System for Modern Food & Beverage Businesses
 
-## Using this example
+<p align="left">
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Hono-E36002?style=for-the-badge&logo=hono&logoColor=white" alt="Hono" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black" alt="Drizzle ORM" />
+  <img src="https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white" alt="Bun" />
+</p>
 
-Run the following command:
+Oorder is a web-based self-ordering platform designed for food and beverage businesses. Customers scan a QR code, browse the menu, place an order, and wait for their order without creating an account or waiting in a physical queue.
 
-```sh
-npx create-turbo@latest
+The platform provides businesses with centralized order and menu management alongside white-label customization.
+
+## Overview
+
+Traditional ordering requires customers to queue and interact with staff before their order enters the kitchen.
+
+Oorder simplifies this flow:
+
+```text
+Scan QR Code
+     ↓
+Browse Menu
+     ↓
+Place Order
+     ↓
+Order Processing
+     ↓
+Ready for Pickup
 ```
 
-## What's inside?
+Customers access the ordering page directly from a QR code assigned to their table or ordering point.
 
-This Turborepo includes the following packages/apps:
+No customer account is required.
 
-### Apps and Packages
+## Features
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### QR Code Management
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+Generate and manage QR codes for tables or ordering points.
 
-### Utilities
+- Unique QR codes
+- Direct access to the ordering page
+- Simple table identification
 
-This Turborepo has some additional tools already setup for you:
+### Order Management
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+Manage incoming customer orders from a centralized interface.
 
-### Build
+- View incoming orders
+- Track order status
+- Organize active orders
+- Manage the order workflow
 
-To build all apps and packages, run the following command:
+### Menu Management
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Control the menu without modifying application code.
 
-```sh
-cd my-turborepo
-turbo build
+- Create and update menu items
+- Change prices
+- Update product names and images
+- Control product visibility
+- Manage item availability
+
+### Zero-Login Ordering
+
+Customers place orders without creating an account.
+
+This reduces friction between scanning the QR code and submitting an order.
+
+### White-Label Customization
+
+Businesses configure the platform around their own brand identity.
+
+- Business branding
+- Custom visual identity
+- Business-specific menu
+- Independent customer-facing experience
+
+## Tech Stack
+
+| Technology     | Purpose                                   |
+| -------------- | ----------------------------------------- |
+| TypeScript     | Primary programming language              |
+| React          | Frontend user interface                   |
+| Vite           | Frontend development and build tooling    |
+| Hono           | Backend HTTP framework                    |
+| Drizzle ORM    | Type-safe database access                 |
+| Bun            | JavaScript runtime and package manager    |
+| Better Auth    | Authentication                            |
+| TanStack Query | Server-state management and data fetching |
+| Tailwind CSS   | Styling                                   |
+| Radix UI       | Accessible UI primitives                  |
+
+## Architecture
+
+```text
+┌──────────────────────┐
+│      Customer        │
+│   QR Ordering Page   │
+└──────────┬───────────┘
+           │
+           │ HTTP
+           ▼
+┌──────────────────────┐
+│    React + Vite      │
+│      Frontend        │
+└──────────┬───────────┘
+           │
+           │ API
+           ▼
+┌──────────────────────┐
+│        Hono          │
+│       Backend        │
+└──────────┬───────────┘
+           │
+     ┌─────┴─────┐
+     ▼           ▼
+┌─────────┐ ┌─────────────┐
+│ Drizzle │ │ Better Auth │
+│   ORM   │ │             │
+└────┬────┘ └─────────────┘
+     │
+     ▼
+┌──────────────────────┐
+│       Database       │
+└──────────────────────┘
 ```
 
-Without global `turbo`, use your package manager:
+## Project Structure
 
-```sh
-cd my-turborepo
-npx turbo build
-bun exec turbo build
-bun exec turbo build
+A typical project structure:
+
+```text
+oorder/
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   ├── pages/
+│   │   └── App.tsx
+│   └── package.json
+│
+├── server/
+│   ├── db/
+│   ├── routes/
+│   ├── middleware/
+│   └── index.ts
+│
+├── drizzle/
+├── public/
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Adjust this section to match the repository's actual structure.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Getting Started
 
-```sh
-turbo build --filter=docs
+### Prerequisites
+
+Install the following before running Oorder:
+
+- Bun
+- A supported SQL database
+- Git
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Fadheal/oorder.git
+cd oorder
 ```
 
-Without global `turbo`:
+Install dependencies:
 
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+```bash
+bun install
 ```
 
-### Develop
+### Environment Variables
 
-To develop all apps and packages, run the following command:
+Create a `.env` file in the project root.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+```env
+DATABASE_URL="your-database-connection-string"
 
-```sh
-cd my-turborepo
-turbo dev
+BETTER_AUTH_SECRET="your-secret-key"
+BETTER_AUTH_URL="http://localhost:3000"
 ```
 
-Without global `turbo`, use your package manager:
+Never commit `.env` files or production credentials to the repository.
 
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
+### Database Setup
+
+Apply the database schema:
+
+```bash
+bunx drizzle-kit push
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+For migration-based environments:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
+```bash
+bunx drizzle-kit generate
+bunx drizzle-kit migrate
 ```
 
-Without global `turbo`:
+### Development
 
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
+Start the development server:
+
+```bash
+bun run dev
 ```
 
-### Remote Caching
+Open the application using the local URL shown in your terminal.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## Available Scripts
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+| Command                     | Description                         |
+| --------------------------- | ----------------------------------- |
+| `bun install`               | Install dependencies                |
+| `bun run dev`               | Start development environment       |
+| `bun run build`             | Create a production build           |
+| `bun run start`             | Start the production server         |
+| `bunx drizzle-kit generate` | Generate database migrations        |
+| `bunx drizzle-kit migrate`  | Apply database migrations           |
+| `bunx drizzle-kit push`     | Push schema changes to the database |
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+Script names depend on the project's `package.json`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Core Ordering Flow
 
-```sh
-cd my-turborepo
-turbo login
+```text
+Customer
+   │
+   ├── Scan QR Code
+   │
+   ▼
+Menu
+   │
+   ├── Select Items
+   │
+   ▼
+Cart
+   │
+   ├── Submit Order
+   │
+   ▼
+Backend API
+   │
+   ├── Validate Order
+   ├── Store Order
+   │
+   ▼
+Order Management
+   │
+   ├── Process Order
+   ├── Update Status
+   │
+   ▼
+Ready for Pickup
 ```
 
-Without global `turbo`, use your package manager:
+## Security
 
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
+For production deployments:
+
+- Keep credentials inside environment variables.
+- Validate API request payloads.
+- Protect administrative routes with authentication and authorization.
+- Apply database constraints for critical data.
+- Restrict CORS to trusted origins.
+- Use HTTPS in production.
+- Apply rate limiting to public endpoints.
+- Keep dependencies updated.
+- Never expose database credentials to the frontend.
+
+## Deployment
+
+Oorder consists of a frontend application, backend API, and database.
+
+Before deploying:
+
+1. Configure production environment variables.
+2. Configure the production database.
+3. Apply database migrations.
+4. Build the application.
+5. Start the production server.
+6. Configure HTTPS and your domain.
+
+Example:
+
+```bash
+bun run build
+bun run start
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Roadmap
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- [ ] QR-based ordering
+- [ ] Menu management
+- [ ] Order management
+- [ ] Zero-login customer ordering
+- [ ] White-label support
+- [ ] Real-time order updates
+- [ ] Order analytics
+- [ ] Payment gateway integration
+- [ ] Receipt generation
+- [ ] Multi-branch management
+- [ ] Kitchen display system
+- [ ] Inventory management
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Update the roadmap based on the current development status.
 
-```sh
-turbo link
+## Contributing
+
+Contributions, bug reports, and feature proposals are welcome.
+
+1. Fork the repository.
+2. Create a feature branch.
+
+```bash
+git checkout -b feature/your-feature
 ```
 
-Without global `turbo`:
+3. Commit your changes.
 
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
+```bash
+git commit -m "feat: add your feature"
 ```
 
-## Useful Links
+4. Push the branch.
 
-Learn more about the power of Turborepo:
+```bash
+git push origin feature/your-feature
+```
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+5. Open a Pull Request.
+
+For commit messages, the project should follow [Conventional Commits](https://www.conventionalcommits.org/).
+
+---
+
+<p align="center">
+  Built for faster and simpler self-ordering.
+</p>
