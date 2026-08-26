@@ -22,6 +22,8 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Delete, EditIcon, MoreHorizontal, Plus, Trash } from "lucide-react"
+import { formatRupiah } from "@/lib/formarter"
+import { useState } from "react"
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[]
@@ -32,6 +34,8 @@ function DataTable<TData extends RowData>({
   columns,
   data,
 }: DataTableProps<TData>) {
+  const [openEdit, setOpenEdit] = useState(false)
+
   const table = useTable({
     features,
     data,
@@ -51,10 +55,7 @@ function DataTable<TData extends RowData>({
           </p>
         </div>
 
-        <Button className="p-4 gap-2">
-          <Plus className="size-4" />
-          Add Menu
-        </Button>
+        {/* Search here */}
       </div>
 
       <Table className="[&_th]:px-6 [&_td]:px-6">
@@ -74,10 +75,6 @@ function DataTable<TData extends RowData>({
                   )}
                 </TableHead>
               ))}
-
-              <TableHead className="h-11 w-[90px] text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Action
-              </TableHead>
             </TableRow>
           ))}
         </TableHeader>
@@ -102,6 +99,29 @@ function DataTable<TData extends RowData>({
                         className="size-12 rounded-lg border bg-muted object-cover"
                       />
                     </TableCell>
+                  ) : cell.column.id === "price" ? (
+                    <TableCell
+                      key={cell.id}
+                      className="py-4 text-sm text-foreground"
+                    >
+                      {formatRupiah(cell.getValue() as number)}
+                    </TableCell>
+                  ) : cell.column.id === "avaliable" ? (
+                    cell.renderValue() ? (
+                      <TableCell
+                        key={cell.id}
+                        className="py-4 text-sm text-green-600"
+                      >
+                        Yes
+                      </TableCell>
+                    ) : (
+                      <TableCell
+                        key={cell.id}
+                        className="py-4 text-sm text-red-600"
+                      >
+                        No
+                      </TableCell>
+                    )
                   ) : (
                     <TableCell
                       key={cell.id}
@@ -111,21 +131,6 @@ function DataTable<TData extends RowData>({
                     </TableCell>
                   )
                 )}
-
-                <TableCell className="space-x-2">
-                  <Button
-                    variant="destructive"
-                    className="rounded-full h-9 w-9"
-                  >
-                    <Trash className="w-2" />
-                  </Button>
-                  <Button
-                    variant="default"
-                    className="rounded-full h-9 w-9"
-                  >
-                    <EditIcon className="w-2" />
-                  </Button>
-                </TableCell>
               </TableRow>
             ))
           ) : (
