@@ -1,69 +1,71 @@
-type CreatePaymentInput = {
-  orderId: string
-  amount: number
-}
+import midtransClient from "midtrans-client"
 
-type XenditSession = {
-  payment_session_id: string
-  payment_link_url: string
-  reference_id: string
-  status: string
-}
+const snap = new midtransClient.Snap({
+  isProduction: false,
+  serverKey: process.env.MIDTRANS_SERVER_KEY!,
+  clientKey: process.env.MIDTRANS_CLIENT_KEY!,
+})
 
 export const PaymentServices = {
   async create({
-    orderId,
+    paymentId,
     amount,
-  }: CreatePaymentInput): Promise<XenditSession> {
-    const secretKey = process.env.XENDIT_SECRET_KEY
+  }: {
+    paymentId: string
+    amount: number
+  }) {
+    const transaction = await snap.createTransaction({
+      transaction_details: {
+        order_id: paymentId,
+        gross_amount: amount,
+      },
+    })
 
-    if (!secretKey) {
-      throw new Error("xendit_secret_key_missing")
+    return {
+      token: transaction.token,
+      url: transaction.redirect_url,
+    }
+  },
+
+  async getStatus(paymentId: string) {
+    const serverKey = process.env.MIDTRANS_SERVER_KEY
+
+    if (!serverKey) {
+      throw new Error("midtrans_server_key_missing")
     }
 
-    const authorization = Buffer
-      .from(`${secretKey}:`)
+    const auth = Buffer
+      .from(`${serverKey}:`)
       .toString("base64")
 
     const response = await fetch(
-      "https://api.xendit.co/sessions",
+      `https://api.sandbox.midtrans.com/v2/${paymentId}/status`,
       {
-        method: "POST",
-
         headers: {
-          Authorization: `Basic ${authorization}`,
-          "Content-Type": "application/json",
+          Authorization: `Basic ${auth}`,
+          Accept: "application/json",
         },
-
-        body: JSON.stringify({
-          reference_id: orderId,
-
-          session_type: "PAY",
-          mode: "PAYMENT_LINK",
-
-          amount,
-          currency: "IDR",
-          country: "ID",
-
-          description: `Oorder #${orderId}`,
-
-          success_return_url:
-            `${process.env.FRONTEND_URL}/order/${orderId}`,
-
-          cancel_return_url:
-            `${process.env.FRONTEND_URL}/order/${orderId}`,
-        }),
       }
     )
 
     if (!response.ok) {
       const error = await response.text()
 
-      throw new Error(`xendit_error: ${error}`)
+      throw new Error(`midtrans_status_error: ${error}`)
     }
 
-    const data = await response.json() as XenditSession
-
-    return data
+    return await response.json() as {
+      order_id: string
+      transaction_status:
+        | "capture"
+        | "settlement"
+        | "pending"
+        | "deny"
+        | "cancel"
+        | "expire"
+        | "failure"
+      fraud_status?: string
+      gross_amount: string
+    }
   },
 }

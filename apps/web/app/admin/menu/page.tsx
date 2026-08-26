@@ -14,7 +14,7 @@ import axios from "axios"
 
 async function getData(): Promise<Items[]> {
   const response = await axios.get<Items[]>(
-    "http://localhost:3001/api/menu"
+    `${process.env.NEXT_PUBLIC_API_URL}/api/menu`
   )
 
   return response.data
@@ -22,7 +22,7 @@ async function getData(): Promise<Items[]> {
 
 async function createMenu(data: MenuFormValues) {
   const response = await axios.post(
-    "http://localhost:3001/api/menu",
+    `${process.env.NEXT_PUBLIC_API_URL}/api/menu`,
     data
   )
 

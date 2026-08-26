@@ -19,12 +19,93 @@ import {
 } from "@/components/ui/drawer"
 
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 function Cart() {
   const items = useCartStore((state) => state.items)
   const increase = useCartStore((state) => state.increase)
   const decrease = useCartStore((state) => state.decrease)
   const removeItem = useCartStore((state) => state.removeItem)
+
+  const router = useRouter()
+
+  const [loading, setLoading] = useState(false)
+
+  const clearCart = useCartStore(
+    (state) => state.clearCart
+  )
+
+  async function confirmCheckout(checkoutId: string) {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/checkout/${checkoutId}/confirm`,
+      {
+        method: "POST",
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(
+        data.message ?? "Checkout failed"
+      )
+    }
+
+    clearCart()
+
+    router.push(`/order/${data.order.id}`)
+  }
+
+  async function handlePayment() {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/checkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            items: items.map((item) => ({
+              menuId: item.menuId,
+              quantity: item.quantity,
+            })),
+          }),
+        }
+      )
+
+      const text = await response.text()
+
+      console.log("RAW API RESPONSE:", text)
+
+      const data = JSON.parse(text)
+
+      if (!response.ok) {
+        throw new Error(data.message ?? "Checkout failed")
+      }
+
+      window.snap.pay(data.payment.token, {
+        onSuccess: async () => {
+          await confirmCheckout(data.checkoutId)
+        },
+
+        onPending: (result) => {
+          console.log("Payment pending", result)
+        },
+
+        onError: (result) => {
+          console.error("Payment failed", result)
+        },
+
+        onClose: () => {
+          console.log("Payment popup closed")
+        },
+      })
+    } catch (error) {
+      console.error("Checkout error:", error)
+    }
+  }
 
   const totalItems = items.reduce(
     (total, item) => total + item.quantity,
@@ -143,8 +224,12 @@ function Cart() {
               </span>
             </div>
 
-            <Button className="h-12 w-full bg-green-700 hover:bg-green-600">
-              Continue to Payment
+            <Button
+              className="h-12 w-full bg-green-700 hover:bg-green-600"
+              disabled={loading || items.length === 0}
+              onClick={handlePayment}
+            >
+              {loading ? "Creating Payment..." : "Continue to Payment"}
             </Button>
           </div>
         </div>

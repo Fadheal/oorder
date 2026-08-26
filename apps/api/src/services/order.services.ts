@@ -1,3 +1,4 @@
+import { CheckoutRepository } from "../repositories/checkout.repository"
 import { MenuRepository } from "../repositories/menu.repository"
 import { OrdersRepository } from "../repositories/orders.repository"
 import { PaymentServices } from "./payment.services"
@@ -29,8 +30,6 @@ export const OrderServices = {
       throw new Error("order_must_contain_at_least_one_item")
     }
 
-    const orderCode = Math.floor(1000 + Math.random() * 9000)
-
     let total = 0
 
     const validatedItems = []
@@ -53,41 +52,57 @@ export const OrderServices = {
       total += menu.price * item.quantity
 
       validatedItems.push({
-        menu,
+        menuId: menu.id,
         quantity: item.quantity,
+        price: menu.price,
       })
     }
 
-    const order = await OrdersRepository.create({
-      orderCode,
-      status: "pending_payment",
+    const paymentId = crypto.randomUUID()
+
+    const checkout = await CheckoutRepository.create({
+      paymentId,
       total,
+      items: validatedItems,
     })
 
-    if (!order) {
-      throw new Error("failed_to_create_order")
-    }
-
-    for (const item of validatedItems) {
-      await OrdersRepository.createItems({
-        orderId: order.id,
-        menuId: item.menu.id,
-        quantity: item.quantity,
-        price: item.menu.price,
-      })
+    if (!checkout) {
+      throw new Error("failed_to_create_checkout")
     }
 
     const payment = await PaymentServices.create({
-      orderId: order.id,
+      paymentId,
       amount: total,
     })
 
     return {
-      order,
+      checkoutId: checkout.id,
       payment: {
-        sessionId: payment.payment_session_id,
-        url: payment.payment_link_url,
+        token: payment.token,
+        url: payment.url,
       },
     }
+  },
+
+  async updateStatus(
+    id: string,
+    status: "processed" | "completed"
+  ) {
+    const order = await OrdersRepository.findById(id)
+
+    if (!order) {
+      throw new Error("order_not_found")
+    }
+
+    const updatedOrder = await OrdersRepository.updateStatus(
+      id,
+      status
+    )
+
+    if (!updatedOrder) {
+      throw new Error("failed_to_update_order")
+    }
+
+    return updatedOrder
   },
 }

@@ -9,6 +9,7 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/midtrans-client": "^1.4.0",
     "@types/node": "^26.3.0",
     "drizzle-kit": "^0.31.10",
     "prettier": "3.9.6",

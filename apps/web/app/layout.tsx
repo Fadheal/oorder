@@ -4,6 +4,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Providers from "./providers";
+import Script from "next/script"
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -31,6 +32,14 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>
           {children}
+
+          <Script
+            src="https://app.sandbox.midtrans.com/snap/snap.js"
+            data-client-key={
+              process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+            }
+            strategy="afterInteractive"
+          />
         </Providers>
       </body>
     </html>

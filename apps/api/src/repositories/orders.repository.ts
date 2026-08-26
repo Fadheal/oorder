@@ -49,15 +49,19 @@ export const OrdersRepository = {
     return item
   },
 
-  update(
+  async updateStatus(
     id: string,
-    data: Partial<typeof orders.$inferInsert>
+    status: "processed" | "completed"
   ) {
-    return db
+    const [order] = await db
       .update(orders)
-      .set(data)
+      .set({
+        status,
+      })
       .where(eq(orders.id, id))
       .returning()
+
+    return order
   },
 
   remove(id: string) {

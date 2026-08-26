@@ -1,44 +1,204 @@
-import { Button } from '@/components/ui/button'
-import React from 'react'
+"use client"
 
-function OrdersCard() {
+import { Button } from "@/components/ui/button"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Clock3 } from "lucide-react"
+
+type OrderStatus =
+  | "paid"
+  | "processed"
+  | "completed"
+  | "cancelled"
+
+type OrderItem = {
+  name: string
+  quantity: number
+  price: number
+}
+
+interface OrdersCardProps {
+  id: string
+  orderCode: number
+  status: OrderStatus
+  createdAt: string
+  items: OrderItem[]
+}
+
+const statusStyle = {
+  paid: {
+    label: "Paid",
+    className:
+      "border-yellow-500/20 bg-yellow-500/10 text-yellow-600",
+    accent: "bg-yellow-500",
+  },
+
+  processed: {
+    label: "Processing",
+    className:
+      "border-blue-500/20 bg-blue-500/10 text-blue-600",
+    accent: "bg-blue-500",
+  },
+
+  completed: {
+    label: "Completed",
+    className:
+      "border-green-500/20 bg-green-500/10 text-green-600",
+    accent: "bg-green-500",
+  },
+
+  cancelled: {
+    label: "Cancelled",
+    className:
+      "border-red-500/20 bg-red-500/10 text-red-600",
+    accent: "bg-red-500",
+  },
+}
+
+function OrdersCard({
+  id,
+  orderCode,
+  status,
+  createdAt,
+  items,
+}: OrdersCardProps) {
+  const queryClient = useQueryClient()
+
+  const currentStatus = statusStyle[status]
+
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  )
+
+  const mutation = useMutation({
+    mutationFn: async (
+      status: "processed" | "completed"
+    ) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status,
+          }),
+        }
+      )
+
+      if (!response.ok) {
+        const text = await response.text()
+        throw new Error(text)
+      }
+    },
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      })
+
+      await queryClient.invalidateQueries({
+        queryKey: ["order", id],
+      })
+    },
+  })
+
+  function handleProceed() {
+    if (status === "paid") {
+      mutation.mutate("processed")
+      return
+    }
+
+    if (status === "processed") {
+      mutation.mutate("completed")
+    }
+  }
+
   return (
-    <div className='w-94 h-fit bg-white rounded-lg overflow-clip flex shadow-md'>
-      <div className='h-100% w-1.5 bg-yellow-500'/>
-      <div className='w-full p-6 space-y-18'>
-        <div className='space-y-4'>
-          <div className='flex items-center justify-between'>
-            <h1 className='font-semibold text-2xl'>Order#702</h1>
-            <div className='px-2.5 py-1 w-fit h-fit bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 text-xs rounded-full'>Pending</div>
-          </div>
+    <div className="relative w-full max-w-95 overflow-hidden rounded-xl border bg-background shadow-sm">
+      <div
+        className={`absolute bottom-0 left-0 top-0 w-1.5 ${currentStatus.accent}`}
+      />
 
-          <div className='text-xs font-medium text-black/50'>
-            <p>Name : Aldo</p>
-            <p>2 minutes ago</p>
-          </div>
+      <div className="space-y-5 p-5 pl-6">
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Order
+              </p>
 
-          <div className='pt-4'>
-            <div className='flex items-center justify-between'>
-              <div className='flex gap-2'>
-                <h1 className='font-bold text-primary'>3x</h1>
-                <h1>Es Kopi F-Duck</h1>
-              </div>
-              <p className='text-black/50'>18K</p>
+              <h2 className="text-2xl font-bold tracking-tight">
+                Order #{orderCode}
+              </h2>
             </div>
 
-            <div className='flex items-center justify-between'>
-              <div className='flex gap-2'>
-                <h1 className='font-bold text-primary'>2x</h1>
-                <h1>Burger DRS</h1>
-              </div>
-              <p className='text-black/50'>28K</p>
+            <div
+              className={`rounded-full border px-2.5 py-1 text-xs font-medium ${currentStatus.className}`}
+            >
+              {currentStatus.label}
             </div>
+          </div>
+
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock3 className="size-3.5" />
+            {createdAt}
           </div>
         </div>
 
-        <div className='p-1 py-4 pb-0 border-t border-black/10 w-full'>
-          <Button className="w-full h-12 rounded-lg">Proceed</Button>
+        <div className="space-y-3 border-t pt-4">
+          {items.map((item, index) => (
+            <div
+              key={`${item.name}-${index}`}
+              className="flex items-center justify-between gap-4"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="font-bold text-primary">
+                  {item.quantity}x
+                </span>
+
+                <span className="truncate text-sm font-medium">
+                  {item.name}
+                </span>
+              </div>
+
+              <span className="shrink-0 text-sm text-muted-foreground">
+                Rp{item.price.toLocaleString("id-ID")}
+              </span>
+            </div>
+          ))}
         </div>
+
+        <div className="flex items-center justify-between border-t pt-4">
+          <span className="text-sm text-muted-foreground">
+            Total
+          </span>
+
+          <span className="font-bold">
+            Rp{total.toLocaleString("id-ID")}
+          </span>
+        </div>
+
+        {(status === "paid" || status === "processed") && (
+          <Button
+            className="h-11 w-full rounded-lg"
+            disabled={mutation.isPending}
+            onClick={handleProceed}
+          >
+            {mutation.isPending
+              ? "Updating..."
+              : status === "paid"
+                ? "Start Processing"
+                : "Mark as Completed"}
+          </Button>
+        )}
+
+        {mutation.isError && (
+          <p className="text-center text-xs text-destructive">
+            {mutation.error.message}
+          </p>
+        )}
       </div>
     </div>
   )

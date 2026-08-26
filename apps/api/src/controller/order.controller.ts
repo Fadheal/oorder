@@ -45,4 +45,40 @@ export const OrderController = {
       throw error
     }
   },
+
+  async updateStatus(c: Context) {
+    try {
+      const id = c.req.param("id")
+
+      if (!id) {
+        return c.json(
+          { message: "order_id_is_required" },
+          400
+        )
+      }
+
+      const body = await c.req.json<{
+        status: "processed" | "completed"
+      }>()
+
+      const order = await OrderServices.updateStatus(
+        id,
+        body.status
+      )
+
+      return c.json({
+        message: "order_status_updated",
+        order,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        return c.json(
+          { message: error.message },
+          400
+        )
+      }
+
+      throw error
+    }
+  }
 }

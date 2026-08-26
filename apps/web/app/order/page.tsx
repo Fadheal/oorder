@@ -9,7 +9,7 @@ import Cart from './components/Cart'
 
 async function getData(): Promise<Items[]> {
   const response = await axios.get<Items[]>(
-    "http://localhost:3001/api/menu/available"
+    `${process.env.NEXT_PUBLIC_API_URL}/api/menu/available`
   )
 
   return response.data
@@ -26,7 +26,7 @@ function page() {
   })
 
   return (
-    <main className='bg-accent w-full h-screen'>
+    <main className='bg-accent w-full h-screen overflow-auto scrollbar-none'>
       <header className='w-full h-18 flex items-center justify-center'>
         <h1 className='font-bold text-4xl'><span className='text-green-600'>O</span>order</h1>
       </header>

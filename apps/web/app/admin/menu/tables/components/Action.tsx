@@ -25,7 +25,7 @@ function MenuActions({ menu }: MenuActionsProps) {
 
   const handleEdit = async (data: MenuFormValues) => {
     const response = await fetch(
-      `http://localhost:3001/api/menu/${menu.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/menu/${menu.id}`,
       {
         method: "PUT",
 
@@ -48,7 +48,7 @@ function MenuActions({ menu }: MenuActionsProps) {
 
   async function handleDelete() {
     const response = await fetch(
-      `http://localhost:3001/api/menu/${menu.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/menu/${menu.id}`,
       {
         method: "DELETE",
       }

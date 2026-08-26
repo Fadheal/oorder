@@ -1,4 +1,5 @@
-import { boolean, pgEnum, pgTable, text, integer, uuid, timestamp } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { boolean, pgEnum, pgTable, text, integer, uuid, timestamp, jsonb } from "drizzle-orm/pg-core";
 
 export const menuCategory = pgEnum("menu_category", [
   "food",
@@ -40,3 +41,50 @@ export const orderItems = pgTable("order_items", {
   quantity: integer("quantity").notNull(),
   price: integer("price").notNull(),
 })
+
+export const checkoutSessions = pgTable("checkout_sessions", {
+  id: uuid("id")
+    .defaultRandom()
+    .primaryKey(),
+
+  paymentId: text("payment_id")
+    .notNull()
+    .unique(),
+
+  total: integer("total")
+    .notNull(),
+
+  items: jsonb("items")
+    .$type<
+      {
+        menuId: string
+        quantity: number
+        price: number
+      }[]
+    >()
+    .notNull(),
+
+  createdAt: timestamp("created_at")
+    .defaultNow()
+    .notNull(),
+})
+
+export const ordersRelations = relations(orders, ({ many }) => ({
+  items: many(orderItems),
+}))
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+
+  menu: one(menu, {
+    fields: [orderItems.menuId],
+    references: [menu.id],
+  }),
+}))
+
+export const menuRelations = relations(menu, ({ many }) => ({
+  orderItems: many(orderItems),
+}))
