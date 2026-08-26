@@ -9,7 +9,7 @@ export const MenuService = {
   async getById(id: string) {
     const result = await MenuRepository.findById(id)
 
-    return result[0] ?? null
+    return result ?? null
   },
 
   async create(data: {

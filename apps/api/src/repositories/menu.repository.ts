@@ -10,6 +10,7 @@ export const MenuRepository = {
       .select()
       .from(menu)
       .where(eq(menu.id, id))
+      .then((rows) => rows[0] ?? null)
   },
 
   create(data: typeof menu.$inferInsert) {
