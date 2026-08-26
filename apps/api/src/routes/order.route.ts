@@ -5,5 +5,6 @@ const orderRoute = new Hono()
 
 orderRoute.get("/", OrderController.getAll)
 orderRoute.post("/", OrderController.create)
+orderRoute.get("/:id", OrderController.getById)
 
 export default orderRoute

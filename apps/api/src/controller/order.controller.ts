@@ -8,6 +8,23 @@ export const OrderController = {
     return c.json(orders)
   },
 
+  async getById(c: Context) {
+    const id = c.req.param("id")
+
+    if (!id) {
+      return c.json(
+        {
+          message: "order_id_is_required",
+        },
+        400
+      )
+    }
+
+    const order = await OrderServices.getById(id)
+
+    return c.json(order)
+  },
+
   async create(c: Context) {
     try {
       const body = await c.req.json()

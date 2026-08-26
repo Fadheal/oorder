@@ -14,6 +14,16 @@ export const OrderServices = {
     return OrdersRepository.findAll()
   },
 
+  async getById(id: string) {
+    const order = await OrdersRepository.findById(id)
+
+    if (!order) {
+      throw new Error("order_not_found")
+    }
+
+    return order
+  },
+
   async create(data: CreateOrderInput) {
     if (!data.items.length) {
       throw new Error("order_must_contain_at_least_one_item")
