@@ -9,13 +9,16 @@ import { CopyIcon, DownloadIcon } from "lucide-react"
 
 import QRCode from "qrcode"
 import { jsPDF } from "jspdf"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 function Page() {
-  const orderUrl = `${window.location.origin}/order`
-
   const [qrCode, setQrCode] = useState<string>("")
   const [copied, setCopied] = useState(false)
+  const [orderUrl, setOrderUrl] = useState("")
+
+  useEffect(() => {
+    setOrderUrl(`${window.location.origin}/order`)
+  }, [])
 
   async function generateQr() {
     const qr = await QRCode.toDataURL(orderUrl, {
