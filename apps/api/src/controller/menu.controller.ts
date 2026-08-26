@@ -7,6 +7,12 @@ export async function getMenus(c: Context) {
   return c.json(menu)
 }
 
+export async function getAvailableMenus(c: Context) {
+  const menu = await MenuService.getByAvailable()
+
+  return c.json(menu)
+}
+
 export async function getMenu(c: Context) {
   const id = String(c.req.param("id"))
 

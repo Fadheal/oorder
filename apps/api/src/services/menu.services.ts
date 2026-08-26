@@ -12,6 +12,12 @@ export const MenuService = {
     return result ?? null
   },
 
+  async getByAvailable() {
+    const result = await MenuRepository.findByAvailable()
+
+    return result ?? null
+  },
+
   async create(data: {
     name: string
     category: "food" | "snack" | "drink"

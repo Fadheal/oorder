@@ -13,6 +13,13 @@ export const MenuRepository = {
       .then((rows) => rows[0] ?? null)
   },
 
+  findByAvailable() {
+    return db
+      .select()
+      .from(menu)
+      .where(eq(menu.avaliable, true))
+  },
+
   create(data: typeof menu.$inferInsert) {
     return db
       .insert(menu)

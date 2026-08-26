@@ -1,7 +1,17 @@
 import { Hono } from "hono";
 import menuRoute from "./routes/menu.route";
+import { cors } from "hono/cors";
 
 const app = new Hono();
+
+app.use(
+  "*",
+  cors({
+    origin: "http://localhost:3000",
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+  })
+)
 
 app.route("/api/menu", menuRoute)
 
