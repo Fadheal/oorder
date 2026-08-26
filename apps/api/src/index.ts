@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import menuRoute from "./routes/menu.route";
 import { cors } from "hono/cors";
+import orderRoute from "./routes/order.route";
 
 const app = new Hono();
 
@@ -14,6 +15,7 @@ app.use(
 )
 
 app.route("/api/menu", menuRoute)
+app.route("/api/orders", orderRoute)
 
 app.get("/", (c) => {
   return c.json({

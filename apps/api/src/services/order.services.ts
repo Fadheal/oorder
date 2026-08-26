@@ -1,5 +1,6 @@
 import { MenuRepository } from "../repositories/menu.repository"
 import { OrdersRepository } from "../repositories/orders.repository"
+import { PaymentServices } from "./payment.services"
 
 type CreateOrderInput = {
   items: {
@@ -18,21 +19,17 @@ export const OrderServices = {
       throw new Error("order_must_contain_at_least_one_item")
     }
 
-    let total = 0
-
     const orderCode = Math.floor(1000 + Math.random() * 9000)
 
-    const order = await OrdersRepository.create({
-      orderCode,
-      status: "pending_payment",
-      total
-    })
+    let total = 0
+
+    const validatedItems = []
 
     for (const item of data.items) {
       const menu = await MenuRepository.findById(item.menuId)
 
       if (!menu) {
-        throw new Error('menu_is_not_found')
+        throw new Error("menu_is_not_found")
       }
 
       if (!menu.avaliable) {
@@ -43,14 +40,44 @@ export const OrderServices = {
         throw new Error("quantity_must_be_at_least_1")
       }
 
-      await OrdersRepository.createItems({
-        orderId: order?.id,
-        menuId: menu.id,
-        quantity: item.quantity,
-        price: menu.price
-      })
-
       total += menu.price * item.quantity
+
+      validatedItems.push({
+        menu,
+        quantity: item.quantity,
+      })
     }
-  }
+
+    const order = await OrdersRepository.create({
+      orderCode,
+      status: "pending_payment",
+      total,
+    })
+
+    if (!order) {
+      throw new Error("failed_to_create_order")
+    }
+
+    for (const item of validatedItems) {
+      await OrdersRepository.createItems({
+        orderId: order.id,
+        menuId: item.menu.id,
+        quantity: item.quantity,
+        price: item.menu.price,
+      })
+    }
+
+    const payment = await PaymentServices.create({
+      orderId: order.id,
+      amount: total,
+    })
+
+    return {
+      order,
+      payment: {
+        sessionId: payment.payment_session_id,
+        url: payment.payment_link_url,
+      },
+    }
+  },
 }
