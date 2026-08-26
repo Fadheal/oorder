@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema/schema"
 export * from "./schema/schema"
+export * from "./schema/auth-schema"
 export { eq } from "drizzle-orm"
 
 const client = postgres(process.env.DATABASE_URL!)

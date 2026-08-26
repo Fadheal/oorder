@@ -18,6 +18,7 @@
   "dependencies": {
     "@hono/node-server": "^2.1.1",
     "@repo/db": "workspace:*",
+    "better-auth": "^1.7.1",
     "hono": "^4.13.4",
     "midtrans-client": "^1.4.3"
   }

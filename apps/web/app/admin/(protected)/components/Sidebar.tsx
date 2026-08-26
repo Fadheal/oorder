@@ -1,5 +1,9 @@
+"use client"
+
+import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
-import { ChartColumnBig, LayoutDashboard, SaladIcon, ScrollTextIcon, SettingsIcon } from 'lucide-react'
+import { authClient } from '@/lib/auth-client';
+import { ChartColumnBig, LayoutDashboard, LogOut, SaladIcon, ScrollTextIcon, SettingsIcon } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 
@@ -8,6 +12,14 @@ interface SidebarAdminProps {
 }
 
 function SidebarAdmin({ activated } : SidebarAdminProps) {
+  async function handleLogout() {
+    await authClient.signOut()
+
+    window.location.href = "/admin/login"
+  }
+
+  const { data: session } = authClient.useSession()
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -46,7 +58,28 @@ function SidebarAdmin({ activated } : SidebarAdminProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+        <div className="flex items-center gap-3 rounded-xl border bg-background p-3">
+          <div className="flex size-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+            {session?.user?.name
+              ?.slice(0, 1)
+              .toUpperCase() ?? "A"}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold">
+              {session?.user?.name ?? "Admin"}
+            </p>
+
+            <p className="truncate text-xs text-muted-foreground">
+              {session?.user?.email}
+            </p>
+          </div>
+          <Button variant='destructive' className='aspect-square p-4' onClick={handleLogout}>
+            <LogOut className='size-3.5'/>
+          </Button>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   )
 }

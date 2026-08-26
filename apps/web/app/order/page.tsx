@@ -2,7 +2,7 @@
 
 import React from 'react'
 import FoodCard from './components/FoodCard'
-import { Items } from '../admin/menu/tables/Columns'
+import { Items } from '../admin/(protected)/menu/tables/Columns'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Cart from './components/Cart'

@@ -119,7 +119,7 @@ function Page() {
   )
 
   const totalOrders = orders.length
-
+  
   const averageOrderValue =
     validOrders.length > 0
       ? totalRevenue / validOrders.length
