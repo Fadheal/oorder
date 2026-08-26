@@ -46,6 +46,12 @@ export const PaymentServices = {
           country: "ID",
 
           description: `Oorder #${orderId}`,
+
+          success_return_url:
+            `${process.env.FRONTEND_URL}/order/${orderId}`,
+
+          cancel_return_url:
+            `${process.env.FRONTEND_URL}/order/${orderId}`,
         }),
       }
     )
